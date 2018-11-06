@@ -1,0 +1,66 @@
+#!/usr/bin/python
+
+import serial, time, argparse
+
+# Commands supported by usb-sentinel
+# Power on: #PWR:ON\n
+# Power off: #PWR:OFF\n
+# Status request: #PWR:?\n
+
+# Power ON command
+def PowerOn():
+	ser.write(b"#PWR:ON\n")
+
+# Power OFF command
+def PowerOff():
+	ser.write(b"#PWR:OFF\n")
+
+# Power cycle commmand
+def PowerCycle(seconds):
+	PowerOff()
+	time.sleep(seconds)
+	PowerOn()
+
+def Status():
+	ser.write(b"#PWR:?\n");
+
+# Setup argument parser
+parser = argparse.ArgumentParser(
+	prog='usb-sentinel',
+	description="USB-SENTINEL command tool",
+	epilog="This tool controls AERIN's USB-SENTINEL device.")
+parser.add_argument("port", help="Serial port assigned to the sentinel device (ie: /dev/ttyACM0)", default="/dev/ttyACM0")
+parser.add_argument("-on", "--poweron", help="Set USB power ON", action="store_true")
+parser.add_argument("-off", "--poweroff", help="Set USB power OFF", action="store_true")
+parser.add_argument("-cycle", "--powercycle", help="Perorm a USB power cycle OFF -> ON", type=int, action="store", default="5")
+
+
+args = parser.parse_args()
+
+if args.port:
+	print "Using port: " + args.port
+
+# Open serial port
+try:
+	ser = serial.Serial(args.port, 115200, timeout=2)
+except serial.SerialException:
+	print "Unable to open port: " + args.port
+	exit()
+
+# Sanity check
+if ser.isOpen() == "False":
+	print "Unable to open serial port"
+
+if args.poweron:
+	print "Command: Power ON"
+	PowerOn()
+
+elif args.poweroff:
+	print "Command: Power OFF"
+	PowerOff()
+
+elif args.powercycle:
+	print "Command: Power cycle, delay = " + str(args.powercycle) + " seconds."
+	seconds = args.powercycle
+	PowerCycle(seconds)
+
