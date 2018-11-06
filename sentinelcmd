@@ -21,9 +21,6 @@ def PowerCycle(seconds):
 	time.sleep(seconds)
 	PowerOn()
 
-def Status():
-	ser.write(b"#PWR:?\n");
-
 # Setup argument parser
 parser = argparse.ArgumentParser(
 	prog='usb-sentinel',
